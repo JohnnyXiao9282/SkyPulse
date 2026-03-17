@@ -1,0 +1,47 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f0f4f8;
+}
+.app-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 2rem;
+}
+.weather-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.weather-form input {
+  flex: 1;
+  padding: 0.5rem;
+}
+.weather-form button {
+  padding: 0.5rem 1rem;
+}
+.weather-display, .forecast-display {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #e3f2fd;
+  border-radius: 6px;
+}
+.forecast-list {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+}
+.forecast-item {
+  min-width: 100px;
+  text-align: center;
+}
+.error-message {
+  color: #b71c1c;
+  background: #ffcdd2;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
