@@ -14,7 +14,10 @@ Node.js/Express API server for weather data. Features:
 
 1. `cd backend`
 2. `npm install`
-3. Create a `.env` file (see `.env.example`)
+3. Create a `.env` file (see `.env.example`).
+   - **Never commit your `.env` file to GitHub.**
+   - Add `.env` to `.gitignore` to keep your secrets safe.
+   - Use `.env.example` as a template for required environment variables.
 4. `npm start`
 
 ## Requirements
