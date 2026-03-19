@@ -1,8 +1,41 @@
 import express from "express";
-import Weather from "../models/Weather.js";
 import axios from "axios";
+import Weather from "../models/Weather.js";
+// YouTube Data API integration
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search";
 
 const router = express.Router();
+
+// GET: Fetch weather-related YouTube videos for a location
+router.get("/videos", async (req, res) => {
+  const { location } = req.query;
+  if (!location) {
+    return res.status(400).json({ error: "Missing location parameter." });
+  }
+  try {
+    const params = {
+      part: "snippet",
+      q: `${location} weather forecast`,
+      key: YOUTUBE_API_KEY,
+      maxResults: 5,
+      type: "video",
+      safeSearch: "strict",
+    };
+    const response = await axios.get(YOUTUBE_SEARCH_URL, { params });
+    const videos = response.data.items.map((item) => ({
+      title: item.snippet.title,
+      videoId: item.id.videoId,
+      url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+      thumbnail: item.snippet.thumbnails.default.url,
+    }));
+    res.json({ location, videos });
+  } catch (err) {
+    console.error("GET /api/weather/videos error:", err);
+    return res.status(500).json({ error: "Failed to fetch YouTube videos." });
+  }
+});
+
 
 // Helper: Validate date range
 function isValidDateRange(start, end) {
@@ -18,9 +51,9 @@ router.post("/", async (req, res) => {
   if (!isValidDateRange(startDate, endDate)) {
     return res.status(400).json({ error: "Invalid date range." });
   }
-  // Fetch weather data from API (placeholder, implement real API call)
+  // Fetch weather data from API
   try {
-    // Example: Use OpenWeatherMap API (replace with your API key)
+    // Use OpenWeatherMap API
     const apiKey = process.env.WEATHER_API_KEY;
     const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(
       location
@@ -40,7 +73,7 @@ router.post("/", async (req, res) => {
     res.status(201).json(weatherDoc);
   } catch (err) {
     console.error("POST /api/weather error:", err);
-    if (err.response && err.response.data) {
+    if (err.response?.data) {
       res.status(500).json({ error: err.response.data });
     } else {
       res.status(500).json({ error: "Failed to fetch or save weather data." });
@@ -48,38 +81,37 @@ router.post("/", async (req, res) => {
   }
 });
 
-// READ: Get all weather records
-router.get("/", async (req, res) => {
-  try {
-    const records = await Weather.find();
-    res.json(records);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch records." });
-  }
+// Get all weather records
+router.get("/", (req, res) => {
+  Weather.find()
+    .then((records) => res.json(records))
+    .catch(() => res.status(500).json({ error: "Failed to fetch records." }));
 });
 
 // UPDATE: Update a weather record by ID
-router.put("/:id", async (req, res) => {
-  try {
-    const updated = await Weather.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!updated) return res.status(404).json({ error: "Record not found." });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to update record." });
-  }
+router.put("/:id", (req, res) => {
+  Weather.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then((updated) => {
+      if (!updated) {
+        res.status(404).json({ error: "Record not found." });
+      } else {
+        res.json(updated);
+      }
+    })
+    .catch(() => res.status(500).json({ error: "Failed to update record." }));
 });
 
 // DELETE: Delete a weather record by ID
-router.delete("/:id", async (req, res) => {
-  try {
-    const deleted = await Weather.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Record not found." });
-    res.json({ message: "Record deleted." });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to delete record." });
-  }
+router.delete("/:id", (req, res) => {
+  Weather.findByIdAndDelete(req.params.id)
+    .then((deleted) => {
+      if (!deleted) {
+        res.status(404).json({ error: "Record not found." });
+      } else {
+        res.json({ message: "Record deleted." });
+      }
+    })
+    .catch(() => res.status(500).json({ error: "Failed to delete record." }));
 });
 
 export default router;
