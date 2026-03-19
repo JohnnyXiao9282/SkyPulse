@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
     });
     const weatherDoc = new Weather({
       location,
-      date: startDate,
+      date: new Date(startDate),
       weatherData: weatherList,
     });
     await weatherDoc.save();
