@@ -1,7 +1,9 @@
 import React from 'react';
 
 function WeatherDisplay({ weather }) {
-  if (!weather) return null;
+  if (!weather || !weather.weather || !Array.isArray(weather.weather) || !weather.weather[0]) {
+    return <div className="weather-display">No weather data available.</div>;
+  }
   return (
     <div className="weather-display">
       <h2>Current Weather</h2>

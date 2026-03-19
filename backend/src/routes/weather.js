@@ -39,7 +39,12 @@ router.post("/", async (req, res) => {
     await weatherDoc.save();
     res.status(201).json(weatherDoc);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch or save weather data." });
+    console.error("POST /api/weather error:", err);
+    if (err.response && err.response.data) {
+      res.status(500).json({ error: err.response.data });
+    } else {
+      res.status(500).json({ error: "Failed to fetch or save weather data." });
+    }
   }
 });
 
